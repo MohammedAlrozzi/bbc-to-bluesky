@@ -11,9 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "@atproto/api": "^0.4.3",
+    "atproto": "^0.0.1",
     "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^2.7.0",
     "rss-parser": "^3.13.0",
-    "sharp": "^0.32.4",
-    "node-fetch": "^2.6.6"
+    "sharp": "^0.32.4"
   }
 }
