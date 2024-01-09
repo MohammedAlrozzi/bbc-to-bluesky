@@ -1,41 +1,23 @@
-const functions = require("@google-cloud/functions-framework");
-
+const fetch = require('node-fetch');
 const { BskyAgent, AppBskyFeedPost } = require("@atproto/api");
 const cheerio = require("cheerio");
 const sharp = require("sharp");
 const Parser = require("rss-parser");
 const parser = new Parser();
 
-
 const settings = [
   {
-    account: "bbcnews-uk-rss.bsky.social",
-    password: "xxxx-xxxx-xxxx-xxxx",
+    account: "alruzzi.live",
+    password: "d7tr-ixfn-r7c6-4r3p",
     url: "https://feeds.bbci.co.uk/news/uk/rss.xml#",
   },
-  {
-    account: "bbcnews-world-rss.bsky.social",
-    password: "xxxx-xxxx-xxxx-xxxx",
-    url: "https://feeds.bbci.co.uk/news/world/rss.xml#",
-  },
-  {
-    account: "apnews-world-rss.bsky.social",
-    password: "xxxx-xxxx-xxxx-xxxx",
-    url: "https://rsshub.app/apnews/topics/world-news",
-  },
+  // {
+  //   account: "bbcnews-world-rss.bsky.social",
+  //   password: "xxxx-xxxx-xxxx-xxxx",
+  //   url: "https://feeds.bbci.co.uk/news/world/rss.xml#",
+  // },
+  // ...
 ];
-
-async function get_feeds(url) {
-  const feed = await parser.parseURL(url);
-  let output = [];
-  for (const item of feed.items) {
-    output.push({
-      title: item.title,
-      link: item.link,
-    });
-  }
-  return output;
-}
 
 async function post(agent, item) {
   let post = {
@@ -88,53 +70,20 @@ async function post(agent, item) {
   const res = AppBskyFeedPost.validateRecord(post);
   if (res.success) {
     console.log(post);
-    // await agent.post(post);
+    await agent.post(post);
   } else {
     console.log(res.error);
   }
 }
 
-async function main(setting) {
-  const agent = new BskyAgent({ service: "https://bsky.social" });
-  await agent.login({
-    identifier: setting.account,
-    password: setting.password,
-  });
-
-  let processed = new Set();
-  let cursor = "";
-  for (let i = 0; i < 3; ++i) {
-    const response = await agent.getAuthorFeed({
-      actor: setting.account,
-      limit: 100,
-      cursor: cursor,
-    });
-    cursor = response.cursor;
-    for (const feed of response.data.feed) {
-      processed.add(feed.post.record.embed.external.uri);
-      processed.add(feed.post.record.text);
-    }
-  }
-  for (const feed of await get_feeds(setting.url)) {
-    if (!processed.has(feed.title) && !processed.has(feed.link)) {
-      await post(agent, feed);
-    } else {
-      console.log("skipped " + feed.title);
+async function main() {
+  for (const setting of settings) {
+    const agent = new BskyAgent(setting.account, setting.password);
+    const feed = await parser.parseURL(setting.url);
+    for (const item of feed.items) {
+      await post(agent, item);
     }
   }
 }
-// async function entrypoint() {
-//   for (const setting of settings) {
-//     console.log("process " + setting.url);
-//     await main(setting);
-//   }
-//   console.log("--- finish ---");
-// }
-// entrypoint();
-functions.cloudEvent("entrypoint", async (_) => {
-  for (const setting of settings) {
-    console.log("process " + setting.url);
-    await main(setting);
-  }
-  console.log("--- finish ---");
-});
+
+main().catch(err => console.error(err));
