@@ -6,16 +6,16 @@ const Parser = require("rss-parser");
 const parser = new Parser();
 
 const settings = [
+  // {
+  //   account: "alruzzi.live",
+  //   password: "d7tr-ixfn-r7c6-4r3p",
+  //   url: "https://feeds.bbci.co.uk/news/uk/rss.xml",
+  // },
   {
     account: "alruzzi.live",
     password: "d7tr-ixfn-r7c6-4r3p",
-    url: "https://feeds.bbci.co.uk/news/uk/rss.xml",
+    url: "https://feeds.bbci.co.uk/news/world/rss.xml",
   },
-  // {
-  //   account: "bbcnews-world-rss.bsky.social",
-  //   password: "xxxx-xxxx-xxxx-xxxx",
-  //   url: "https://feeds.bbci.co.uk/news/world/rss.xml#",
-  // },
   // ...
 ];
 
